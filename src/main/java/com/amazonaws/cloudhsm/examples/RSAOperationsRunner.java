@@ -145,12 +145,16 @@ public class RSAOperationsRunner {
         String transformation = "RSA/ECB/OAEPPadding";
 
         final KeyAttributesMap publicKeyAttrsMap =
-            new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
+            new KeyAttributesMapBuilder().build();
         final KeyAttributesMap privateKeyAttrsMap =
-            new KeyAttributesMapBuilder()
-                .put(KeyAttribute.EXTRACTABLE, false)
-                .put(KeyAttribute.TOKEN, true)
-                .build();
+            new KeyAttributesMapBuilder().build();
+//        final KeyAttributesMap publicKeyAttrsMap =
+//            new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
+//        final KeyAttributesMap privateKeyAttrsMap =
+//            new KeyAttributesMapBuilder()
+//                .put(KeyAttribute.EXTRACTABLE, false)
+//                .put(KeyAttribute.TOKEN, true)
+//                .build();
         KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
             2048,
             "rsa test",
