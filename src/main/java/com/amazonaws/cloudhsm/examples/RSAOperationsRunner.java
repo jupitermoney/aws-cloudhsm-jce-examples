@@ -19,16 +19,8 @@ package com.amazonaws.cloudhsm.examples;
 import com.amazonaws.cloudhsm.jce.provider.CloudHsmProvider;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.Signature;
-import java.security.SignatureException;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -149,7 +141,24 @@ public class RSAOperationsRunner {
         String plainText = "This is a sample Plain Text Message!";
         String transformation = "RSA/ECB/OAEPPadding";
 
-        KeyPair kp = AsymmetricKeys.generateRSAKeyPair(2048, "rsa test");
+        final KeyAttributesMap publicKeyAttrsMap =
+            new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
+        final KeyAttributesMap privateKeyAttrsMap =
+            new KeyAttributesMapBuilder()
+                .put(KeyAttribute.EXTRACTABLE, false)
+                .put(KeyAttribute.TOKEN, true)
+                .build();
+        KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
+            2048,
+            "rsa test",
+            publicKeyAttrsMap,
+            privateKeyAttrsMap
+        );
+
+        KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
+        keystore.load(null, null);
+        Key privateKey = keystore.getKey("rsa test", null);
+
 
         System.out.println("Performing RSA Encryption Operation");
         byte[] cipherText = null;
@@ -158,7 +167,7 @@ public class RSAOperationsRunner {
 
         System.out.println("Encrypted plaintext = " + Base64.getEncoder().encodeToString(cipherText));
 
-        byte[] decryptedText = decrypt(transformation, kp.getPrivate(), cipherText);
+        byte[] decryptedText = decrypt(transformation, privateKey, cipherText);
         System.out.println("Decrypted text = " + new String(decryptedText, StandardCharsets.UTF_8));
 
         // RSA sign and verify.
