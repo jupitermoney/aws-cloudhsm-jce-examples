@@ -166,7 +166,7 @@ public class RSAOperationsRunner {
 
         KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
         keystore.load(null, null);
-        Key privateKey = keystore.getKey("rsa test", null);
+        Key privateKey = keystore.getKey("rsa test:Private", null);
 
 
         System.out.println("Performing RSA Encryption Operation");
