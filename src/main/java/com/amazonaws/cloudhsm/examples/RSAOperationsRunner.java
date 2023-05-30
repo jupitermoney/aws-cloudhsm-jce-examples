@@ -160,16 +160,16 @@ public class RSAOperationsRunner {
                 .build();
         KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
             2048,
-            "rsatestex2",
+            "rsatestex3",
             publicKeyAttrsMap,
             privateKeyAttrsMap
         );
 
         KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
         keystore.load(null, null);
-        Key privateKey = keystore.getKey("rsatestex2:Private", null);
-        Boolean isPrivateKey = privateKey instanceof RSAPrivateKey;
-        System.out.println("Type of key is: " + isPrivateKey.toString());
+        Key privateKey = keystore.getKey("rsatestex3:Private", null);
+        RSAPrivateKey rsaPrivateKey = (RSAPrivateKey)privateKey;
+        System.out.println("Exponent of key is: " + rsaPrivateKey.getPrivateExponent());
 
         System.out.println("Performing RSA Encryption Operation");
         byte[] cipherText = null;
