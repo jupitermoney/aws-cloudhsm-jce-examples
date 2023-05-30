@@ -159,14 +159,14 @@ public class RSAOperationsRunner {
 //                .build();
         KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
             2048,
-            "rsa test",
+            "rsatestex",
             publicKeyAttrsMap,
             privateKeyAttrsMap
         );
 
         KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
         keystore.load(null, null);
-        Key privateKey = keystore.getKey("rsa test:Private", null);
+        Key privateKey = keystore.getKey("rsatestex:Private", null);
 
 
         System.out.println("Performing RSA Encryption Operation");
