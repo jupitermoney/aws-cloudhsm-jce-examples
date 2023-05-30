@@ -147,7 +147,9 @@ public class RSAOperationsRunner {
         final KeyAttributesMap publicKeyAttrsMap =
             new KeyAttributesMapBuilder().build();
         final KeyAttributesMap privateKeyAttrsMap =
-            new KeyAttributesMapBuilder().build();
+            new KeyAttributesMapBuilder()
+                .put(KeyAttribute.EXTRACTABLE, false)
+                .build();
 //        final KeyAttributesMap publicKeyAttrsMap =
 //            new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
 //        final KeyAttributesMap privateKeyAttrsMap =
