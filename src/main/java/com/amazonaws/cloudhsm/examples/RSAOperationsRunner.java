@@ -176,7 +176,7 @@ public class RSAOperationsRunner {
 
         System.out.println("Encrypted plaintext = " + Base64.getEncoder().encodeToString(cipherText));
 
-        byte[] decryptedText = decrypt(transformation, privateKey, cipherText);
+        byte[] decryptedText = decrypt(transformation, kp.getPrivate(), cipherText);
         System.out.println("Decrypted text = " + new String(decryptedText, StandardCharsets.UTF_8));
 
         // RSA sign and verify.
