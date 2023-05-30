@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateException;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -167,7 +168,8 @@ public class RSAOperationsRunner {
         KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
         keystore.load(null, null);
         Key privateKey = keystore.getKey("rsatestex:Private", null);
-
+        Boolean isPrivateKey = privateKey instanceof RSAPrivateKey;
+        System.out.println("Type of key is: " + isPrivateKey.toString());
 
         System.out.println("Performing RSA Encryption Operation");
         byte[] cipherText = null;
