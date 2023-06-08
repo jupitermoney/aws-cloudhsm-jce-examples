@@ -142,15 +142,10 @@ public class RSAOperationsRunner {
             return;
         }
 
+        String keyLabel = args[1];
         String plainText = "This is a sample Plain Text Message!";
-        String transformation = "RSA/ECB/OAEPPadding";
+        String transformation = "RSA/ECB/PKCS1Padding";
 
-//        final KeyAttributesMap publicKeyAttrsMap =
-//            new KeyAttributesMapBuilder().build();
-//        final KeyAttributesMap privateKeyAttrsMap =
-//            new KeyAttributesMapBuilder()
-//                .put(KeyAttribute.EXTRACTABLE, false)
-//                .build();
         final KeyAttributesMap publicKeyAttrsMap =
             new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
         final KeyAttributesMap privateKeyAttrsMap =
@@ -160,14 +155,14 @@ public class RSAOperationsRunner {
                 .build();
         KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
             2048,
-            "rsatestex3",
+            keyLabel,
             publicKeyAttrsMap,
             privateKeyAttrsMap
         );
 
         KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
         keystore.load(null, null);
-        Key privateKey = keystore.getKey("rsatestex3:Private", null);
+        Key privateKey = keystore.getKey(String.format("%s:Private", keyLabel), null);
         RSAPrivateKey rsaPrivateKey = (RSAPrivateKey)privateKey;
         System.out.println("Exponent of key is: " + rsaPrivateKey.getPrivateExponent());
 
