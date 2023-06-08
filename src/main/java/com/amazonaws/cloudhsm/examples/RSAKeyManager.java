@@ -30,6 +30,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
+import javax.security.auth.Destroyable;
 
 /**
  * Manage RSA keys.
@@ -67,8 +68,8 @@ public class RSAKeyManager {
             System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
             keystore.load(null, null);
-            keystore.deleteEntry(String.format("%s:Private", keyLabel));
-            keystore.deleteEntry(String.format("%s:Public", keyLabel));
+            ((Destroyable) keystore.getKey(String.format("%s:Private", keyLabel), null)).destroy();
+            ((Destroyable) keystore.getKey(String.format("%s:Public", keyLabel), null)).destroy();
         }
     }
 }
