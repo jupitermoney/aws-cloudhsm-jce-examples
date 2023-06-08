@@ -16,19 +16,15 @@
  */
 package com.amazonaws.cloudhsm.examples;
 
+import com.amazonaws.cloudhsm.jce.provider.attributes.KeyAttribute;
+import com.amazonaws.cloudhsm.jce.provider.attributes.KeyAttributesMap;
+import com.amazonaws.cloudhsm.jce.provider.attributes.KeyAttributesMapBuilder;
 import com.amazonaws.cloudhsm.jce.provider.CloudHsmProvider;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
-import java.security.Signature;
-import java.security.SignatureException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -146,28 +142,32 @@ public class RSAOperationsRunner {
             return;
         }
 
+        String keyLabel = args[0];
         String plainText = "This is a sample Plain Text Message!";
-        String transformation = "RSA/ECB/OAEPPadding";
+        String transformation = "RSA/ECB/PKCS1Padding";
 
-        KeyPair kp = AsymmetricKeys.generateRSAKeyPair(2048, "rsa test");
+        KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
+        keystore.load(null, null);
+        Key privateKey = keystore.getKey(String.format("%s:Private", keyLabel), null);
+        Key publicKey = keystore.getKey(String.format("%s:Public", keyLabel), null);
 
         System.out.println("Performing RSA Encryption Operation");
         byte[] cipherText = null;
-        cipherText = encrypt(transformation, kp.getPublic(), plainText.getBytes(
+        cipherText = encrypt(transformation, publicKey, plainText.getBytes(
             StandardCharsets.UTF_8));
 
         System.out.println("Encrypted plaintext = " + Base64.getEncoder().encodeToString(cipherText));
 
-        byte[] decryptedText = decrypt(transformation, kp.getPrivate(), cipherText);
+        byte[] decryptedText = decrypt(transformation, privateKey, cipherText);
         System.out.println("Decrypted text = " + new String(decryptedText, StandardCharsets.UTF_8));
 
         // RSA sign and verify.
         {
             String signingAlgorithm = "SHA512withRSA";
-            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), kp.getPrivate(), signingAlgorithm);
+            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), (PrivateKey) privateKey, signingAlgorithm);
             System.out.println("RSA signature = " + Base64.getEncoder().encodeToString(signature));
 
-            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, kp.getPublic(), signingAlgorithm)) {
+            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, (PublicKey) publicKey, signingAlgorithm)) {
                 System.out.println("Signature verified");
             } else {
                 System.out.println("Signature is invalid!");
@@ -177,10 +177,10 @@ public class RSAOperationsRunner {
         // RSA PSS sign and verify.
         {
             String signingAlgorithm = "SHA512withRSA/PSS";
-            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), kp.getPrivate(), signingAlgorithm);
+            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), (PrivateKey) privateKey, signingAlgorithm);
             System.out.println("RSA PSS signature = " + Base64.getEncoder().encodeToString(signature));
 
-            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, kp.getPublic(), signingAlgorithm)) {
+            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, (PublicKey) publicKey, signingAlgorithm)) {
                 System.out.println("Signature verified");
             } else {
                 System.out.println("Signature is invalid!");
