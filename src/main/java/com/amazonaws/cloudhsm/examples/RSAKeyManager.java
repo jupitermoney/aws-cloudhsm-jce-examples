@@ -48,7 +48,8 @@ public class RSAKeyManager {
         String action = args[0];
         String keyLabel = args[1];
 
-        if (action == "create") {
+        if (action.equals("create")) {
+            System.out.println("Creating key");
             final KeyAttributesMap publicKeyAttrsMap =
                     new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
             final KeyAttributesMap privateKeyAttrsMap =
@@ -62,7 +63,8 @@ public class RSAKeyManager {
                     publicKeyAttrsMap,
                     privateKeyAttrsMap
             );
-        } else if (action == "delete") {
+        } else if (action.equals("delete")) {
+            System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
             keystore.load(null, null);
             keystore.deleteEntry(String.format("%s:Private", keyLabel));
