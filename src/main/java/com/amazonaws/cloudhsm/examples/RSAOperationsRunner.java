@@ -164,10 +164,10 @@ public class RSAOperationsRunner {
         // RSA sign and verify.
         {
             String signingAlgorithm = "SHA512withRSA";
-            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), kp.getPrivate(), signingAlgorithm);
+            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), (PrivateKey) privateKey, signingAlgorithm);
             System.out.println("RSA signature = " + Base64.getEncoder().encodeToString(signature));
 
-            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, kp.getPublic(), signingAlgorithm)) {
+            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, (PublicKey) publicKey, signingAlgorithm)) {
                 System.out.println("Signature verified");
             } else {
                 System.out.println("Signature is invalid!");
@@ -177,10 +177,10 @@ public class RSAOperationsRunner {
         // RSA PSS sign and verify.
         {
             String signingAlgorithm = "SHA512withRSA/PSS";
-            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), kp.getPrivate(), signingAlgorithm);
+            byte[] signature = sign(plainText.getBytes(StandardCharsets.UTF_8), (PrivateKey) privateKey, signingAlgorithm);
             System.out.println("RSA PSS signature = " + Base64.getEncoder().encodeToString(signature));
 
-            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, kp.getPublic(), signingAlgorithm)) {
+            if (verify(plainText.getBytes(StandardCharsets.UTF_8), signature, (PublicKey) publicKey, signingAlgorithm)) {
                 System.out.println("Signature verified");
             } else {
                 System.out.println("Signature is invalid!");
