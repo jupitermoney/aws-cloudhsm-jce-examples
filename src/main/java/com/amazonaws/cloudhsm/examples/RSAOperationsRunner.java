@@ -146,29 +146,14 @@ public class RSAOperationsRunner {
         String plainText = "This is a sample Plain Text Message!";
         String transformation = "RSA/ECB/PKCS1Padding";
 
-        final KeyAttributesMap publicKeyAttrsMap =
-            new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
-        final KeyAttributesMap privateKeyAttrsMap =
-            new KeyAttributesMapBuilder()
-                .put(KeyAttribute.EXTRACTABLE, false)
-                .put(KeyAttribute.TOKEN, true)
-                .build();
-        KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
-            2048,
-            keyLabel,
-            publicKeyAttrsMap,
-            privateKeyAttrsMap
-        );
-
         KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
         keystore.load(null, null);
         Key privateKey = keystore.getKey(String.format("%s:Private", keyLabel), null);
-        RSAPrivateKey rsaPrivateKey = (RSAPrivateKey)privateKey;
-        System.out.println("Exponent of key is: " + rsaPrivateKey.getPrivateExponent());
+        Key publicKey = keystore.getKey(String.format("%s:Public", keyLabel), null);
 
         System.out.println("Performing RSA Encryption Operation");
         byte[] cipherText = null;
-        cipherText = encrypt(transformation, kp.getPublic(), plainText.getBytes(
+        cipherText = encrypt(transformation, publicKey, plainText.getBytes(
             StandardCharsets.UTF_8));
 
         System.out.println("Encrypted plaintext = " + Base64.getEncoder().encodeToString(cipherText));
