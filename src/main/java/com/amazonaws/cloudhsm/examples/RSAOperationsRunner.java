@@ -142,8 +142,7 @@ public class RSAOperationsRunner {
             return;
         }
 
-        System.out.println(args[0]);
-        String keyLabel = args[1];
+        String keyLabel = args[0];
         String plainText = "This is a sample Plain Text Message!";
         String transformation = "RSA/ECB/PKCS1Padding";
 
