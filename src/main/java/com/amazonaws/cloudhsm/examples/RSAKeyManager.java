@@ -50,7 +50,6 @@ public class RSAKeyManager {
 
         String action = args[0];
         String keyLabel = args[1];
-        String outFile = args[2];
 
         if (action.equals("create")) {
             System.out.println("Creating key");
@@ -67,7 +66,7 @@ public class RSAKeyManager {
                     publicKeyAttrsMap,
                     privateKeyAttrsMap
             );
-            writePublicKey(kp, outFile);
+            writePublicKey(kp, keyLabel);
         } else if (action.equals("delete")) {
             System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
