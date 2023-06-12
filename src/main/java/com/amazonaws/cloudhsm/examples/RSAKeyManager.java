@@ -25,7 +25,9 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
@@ -58,12 +60,13 @@ public class RSAKeyManager {
                             .put(KeyAttribute.EXTRACTABLE, false)
                             .put(KeyAttribute.TOKEN, true)
                             .build();
-            AsymmetricKeys.generateRSAKeyPair(
+            KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
                     2048,
                     keyLabel,
                     publicKeyAttrsMap,
                     privateKeyAttrsMap
             );
+            writePublicKey(kp, keyLabel);
         } else if (action.equals("delete")) {
             System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
@@ -71,5 +74,14 @@ public class RSAKeyManager {
             ((Destroyable) keystore.getKey(String.format("%s:Private", keyLabel), null)).destroy();
             ((Destroyable) keystore.getKey(String.format("%s:Public", keyLabel), null)).destroy();
         }
+    }
+
+    private static void writePublicKey(KeyPair kp, String outFile) throws Exception {
+        Writer out = new FileWriter(outFile + ".pub");
+        Base64.Encoder encoder = Base64.getEncoder();
+        out.write("-----BEGIN RSA PUBLIC KEY-----\n");
+        out.write(encoder.encodeToString(kp.getPublic().getEncoded()));
+        out.write("\n-----END RSA PUBLIC KEY-----\n");
+        out.close();
     }
 }
