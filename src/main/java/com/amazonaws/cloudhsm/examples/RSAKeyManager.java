@@ -66,8 +66,7 @@ public class RSAKeyManager {
                     publicKeyAttrsMap,
                     privateKeyAttrsMap
             );
-            System.out.println(kp.getPublic().getFormat());
-//            writePublicKey(kp, keyLabel);
+            writePublicKey(kp, keyLabel);
         } else if (action.equals("delete")) {
             System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
