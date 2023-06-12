@@ -58,12 +58,13 @@ public class RSAKeyManager {
                             .put(KeyAttribute.EXTRACTABLE, false)
                             .put(KeyAttribute.TOKEN, true)
                             .build();
-            AsymmetricKeys.generateRSAKeyPair(
+            KeyPair kp = AsymmetricKeys.generateRSAKeyPair(
                     2048,
                     keyLabel,
                     publicKeyAttrsMap,
                     privateKeyAttrsMap
             );
+            System.out.println(kp.getPublic().toString());
         } else if (action.equals("delete")) {
             System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
