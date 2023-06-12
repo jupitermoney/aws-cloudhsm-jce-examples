@@ -79,7 +79,7 @@ public class RSAKeyManager {
 
     private static void writePublicKey(KeyPair kp, String outFile) throws Exception {
         Writer out = new FileWriter(outFile + ".pub");
-        Base64.Encoder encoder = Base64.getEncoder()
+        Base64.Encoder encoder = Base64.getEncoder();
         out.write("-----BEGIN RSA PUBLIC KEY-----\n");
         out.write(encoder.encodeToString(kp.getPublic().getEncoded()));
         out.write("\n-----END RSA PUBLIC KEY-----\n");
