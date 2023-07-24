@@ -25,14 +25,16 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
 import javax.security.auth.Destroyable;
+import org.bouncycastle.util.io.pem.PemObject;
+import org.bouncycastle.util.io.pem.PemReader;
+import org.bouncycastle.util.io.pem.PemWriter;
+
 
 /**
  * Manage RSA keys.
@@ -69,7 +71,7 @@ public class RSAKeyManager {
                     publicKeyAttrsMap,
                     privateKeyAttrsMap
             );
-            writePublicKey(kp, keyLabel);
+            writePemKey(kp, keyLabel);
         } else if (action.equals("delete")) {
             System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
@@ -86,5 +88,15 @@ public class RSAKeyManager {
         out.write(encoder.encodeToString(kp.getPublic().getEncoded()));
         out.write("\n-----END RSA PUBLIC KEY-----\n");
         out.close();
+    }
+
+    private static void writePemKey(KeyPair kp, String outfile) throws Exception {
+        PemObject pemObject = new PemObject("Public Key", kp.getPublic().getEncoded());
+        PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(outfile)));
+        try {
+            pemWriter.writeObject(pemObject);
+        } finally {
+            pemWriter.close();
+        }
     }
 }
