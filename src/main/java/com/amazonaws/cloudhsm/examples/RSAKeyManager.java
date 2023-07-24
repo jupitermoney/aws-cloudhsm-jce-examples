@@ -92,7 +92,7 @@ public class RSAKeyManager {
 
     private static void writePemKey(KeyPair kp, String outfile) throws Exception {
         PemObject pemObject = new PemObject("Public Key", kp.getPublic().getEncoded());
-        PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(outfile)));
+        PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(outfile + ".pem")));
         try {
             pemWriter.writeObject(pemObject);
         } finally {
