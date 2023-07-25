@@ -107,7 +107,7 @@ public class RSAKeyManager {
     }
 
     private static void writePemKey(KeyPair kp, String outfile) throws Exception {
-        PemObject pemObject = new PemObject("Public Key", kp.getPublic().getEncoded());
+        PemObject pemObject = new PemObject("RSA PUBLIC KEY", kp.getPublic().getEncoded());
         PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(outfile + ".pem")));
         try {
             pemWriter.writeObject(pemObject);
@@ -140,7 +140,7 @@ public class RSAKeyManager {
         final ContentSigner signer = new JcaContentSignerBuilder(("SHA256withRSA")).build(kp.getPrivate());
         X509CertificateHolder certHolder = certBuilder.build(signer);
 
-        PemObject pemObject = new PemObject("Certificate", certHolder.getEncoded());
+        PemObject pemObject = new PemObject("CERTIFICATE", certHolder.getEncoded());
         PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(name + ".pem")));
         try {
             pemWriter.writeObject(pemObject);
