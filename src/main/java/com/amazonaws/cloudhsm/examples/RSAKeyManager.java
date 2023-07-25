@@ -26,11 +26,25 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
+import java.util.Date;
+import java.util.Map;
 import javax.security.auth.Destroyable;
+import javax.security.auth.x500.X500Principal;
+
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.x509.*;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
 import org.bouncycastle.util.io.pem.PemWriter;
@@ -55,6 +69,8 @@ public class RSAKeyManager {
 
         if (action.equals("create")) {
             System.out.println("Creating key");
+            String host = args[2];
+
             // TOKEN true indicates that the key is not temporary, and should be persisted even after the client disconnects
             final KeyAttributesMap publicKeyAttrsMap =
                     new KeyAttributesMapBuilder().put(KeyAttribute.TOKEN, true).build();
@@ -71,7 +87,7 @@ public class RSAKeyManager {
                     publicKeyAttrsMap,
                     privateKeyAttrsMap
             );
-            writePemKey(kp, keyLabel);
+            writePemCert(keyLabel, kp, host);
         } else if (action.equals("delete")) {
             System.out.println("Deleting key");
             KeyStore keystore = KeyStore.getInstance(CloudHsmProvider.PROVIDER_NAME);
@@ -99,4 +115,38 @@ public class RSAKeyManager {
             pemWriter.close();
         }
     }
+
+    private static void writePemCert(String name, KeyPair kp, String host) throws Exception {
+        Security.addProvider(new BouncyCastleProvider());
+
+        X500Principal subject = new X500Principal("CN=" + host);
+        X500Principal signedByPrincipal = subject;
+
+        long notBefore = System.currentTimeMillis();
+        long notAfter = notBefore + (1000L * 3600L * 24 * 365);
+
+        ASN1Encodable[] encodableAltNames = new ASN1Encodable[]{new GeneralName(GeneralName.dNSName, host)};
+        KeyPurposeId[] purposes = new KeyPurposeId[]{KeyPurposeId.id_kp_serverAuth, KeyPurposeId.id_kp_clientAuth};
+
+        X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(signedByPrincipal,
+                BigInteger.ONE, new Date(notBefore), new Date(notAfter), subject, kp.getPublic());
+
+        certBuilder.addExtension(Extension.basicConstraints, true, new BasicConstraints(false));
+        certBuilder.addExtension(Extension.keyUsage, true, new KeyUsage(
+                KeyUsage.digitalSignature + KeyUsage.keyEncipherment + KeyUsage.dataEncipherment));
+        certBuilder.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(purposes));
+        certBuilder.addExtension(Extension.subjectAlternativeName, false, new DERSequence(encodableAltNames));
+
+        final ContentSigner signer = new JcaContentSignerBuilder(("SHA256withRSA")).build(kp.getPrivate());
+        X509CertificateHolder certHolder = certBuilder.build(signer);
+
+        PemObject pemObject = new PemObject("Certificate", certHolder.getEncoded());
+        PemWriter pemWriter = new PemWriter(new OutputStreamWriter(new FileOutputStream(name + ".pem")));
+        try {
+            pemWriter.writeObject(pemObject);
+        } finally {
+            pemWriter.close();
+        }
+    }
+
 }
